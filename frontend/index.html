@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renewable Energy Allocation | Kathir Microgrid</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">⚡</span><div><b>GridWise</b><small>MICROGRID CONSOLE</small></div></div>
+    <div class="side-label">WORKSPACE</div>
+    <a class="nav active" href="#overview">▦ <span>Overview</span></a>
+    <a class="nav" href="#allocation">↗ <span>Run allocation</span></a>
+    <a class="nav" href="#loads">◉ <span>Consumer loads</span></a>
+    <a class="nav" href="#history">▤ <span>Interval history</span></a>
+    <div class="sidebar-bottom"><div class="status-dot"></div><div><b>Simulation mode</b><small>Manual energy inputs</small></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar"><div><div class="eyebrow">KATHIR VILLAGE · COMMUNITY MICROGRID</div><h1>Energy overview</h1><p>Monitor renewable supply and allocate energy by service priority.</p></div><div class="top-actions"><span class="live"><i></i> System online</span><button class="btn btn-light" id="refreshBtn">↻ Refresh</button></div></header>
+    <section class="metric-grid" id="overview">
+      <article class="metric"><div class="metric-head">Latest generation <span class="metric-icon sun">☀</span></div><div class="metric-value"><span id="generationMetric">0</span><small>kWh</small></div><div class="metric-foot">Last processed interval</div></article>
+      <article class="metric"><div class="metric-head">Energy allocated <span class="metric-icon green">↗</span></div><div class="metric-value"><span id="allocatedMetric">0</span><small>kWh</small></div><div class="metric-foot">Successfully distributed</div></article>
+      <article class="metric"><div class="metric-head">Unmet demand <span class="metric-icon orange">!</span></div><div class="metric-value"><span id="unmetMetric">0</span><small>kWh</small></div><div class="metric-foot">Demand still outstanding</div></article>
+      <article class="metric"><div class="metric-head">Intervals processed <span class="metric-icon blue">◷</span></div><div class="metric-value"><span id="intervalMetric">0</span><small>/ 24</small></div><div class="metric-foot">One-hour planning windows</div></article>
+    </section>
+
+    <section class="content-grid" id="allocation">
+      <article class="panel allocation-panel">
+        <div class="panel-title"><div><h2>Run an allocation</h2><p>Enter available renewable energy for a one-hour interval.</p></div><span class="tag">MANUAL INPUT</span></div>
+        <form id="allocationForm">
+          <div class="form-row"><label for="intervalNumber">Planning interval</label><select id="intervalNumber" required></select></div>
+          <div class="form-row"><label for="generationKwh">Available generation <span>(kWh)</span></label><input id="generationKwh" type="number" min="0" max="10000" step="0.1" value="25" required></div>
+          <div class="generation-note"><span>☀</span><div><b>Solar + wind energy</b><small>Enter the combined generation estimate for this hour.</small></div></div>
+          <button class="btn btn-primary full" type="submit">Run priority allocation <span>→</span></button>
+          <p class="form-message" id="formMessage" role="status"></p>
+        </form>
+      </article>
+      <article class="panel source-panel">
+        <div class="panel-title"><div><h2>Renewable sources</h2><p>Configured generation assets</p></div><span class="source-count" id="sourceCount">3 SOURCES</span></div>
+        <div id="sourceList" class="source-list"><div class="loading">Loading sources…</div></div>
+        <details class="manage-form" id="sourceFormWrap"><summary id="sourceFormTitle">+ Add renewable source</summary>
+          <form id="sourceForm"><input type="hidden" id="sourceId"><div class="manage-grid">
+            <label>Source name<input id="sourceName" maxlength="100" required placeholder="e.g. Rooftop Solar"></label>
+            <label>Rated capacity (kWh)<input id="sourceCapacityInput" type="number" min="0" step="0.1" required></label>
+          </div><div class="manage-actions"><button class="btn btn-primary" type="submit" id="sourceSaveBtn">Save source</button><button class="btn btn-light" type="button" id="sourceCancelBtn">Cancel</button></div><p class="form-message" id="sourceMessage" role="status"></p></form>
+        </details>
+        <div class="source-summary"><span>Total rated capacity</span><b id="sourceCapacity">0 kWh</b></div>
+      </article>
+    </section>
+
+    <section class="panel" id="loads">
+      <div class="panel-title"><div><h2>Consumer demand</h2><p>Requests are processed by priority, then arrival order.</p></div><div class="legend"><span><i class="critical"></i>Critical</span><span><i class="essential"></i>Essential</span><span><i class="deferrable"></i>Deferrable</span></div></div>
+      <div class="table-wrap"><table><thead><tr><th>CONSUMER / SERVICE</th><th>CLASS</th><th>REQUESTED</th><th>MINIMUM SERVICE</th><th>ALLOCATION RULE</th><th>PRIORITY</th><th>ACTIONS</th></tr></thead><tbody id="loadTable"><tr><td colspan="7">Loading consumer loads…</td></tr></tbody></table></div>
+      <details class="manage-form" id="loadFormWrap"><summary id="loadFormTitle">+ Add consumer load</summary>
+        <form id="loadForm"><input type="hidden" id="loadId"><div class="manage-grid">
+          <label>Consumer / service name<input id="loadName" maxlength="100" required placeholder="e.g. Health centre"></label>
+          <label>Class<select id="loadCategory" required><option>Critical</option><option>Essential</option><option>Deferrable</option></select></label>
+          <label>Required energy (kWh)<input id="loadDemand" type="number" min="0" step="0.1" required></label>
+          <label>Minimum service (kWh)<input id="loadMinimum" type="number" min="0" step="0.1" value="0" required></label>
+          <label>Priority (1 = highest)<select id="loadPriority"><option value="1">1 · Highest</option><option value="2" selected>2 · Medium</option><option value="3">3 · Lowest</option></select></label>
+          <label class="check-label"><input id="loadDivisible" type="checkbox" checked> Partial allocation allowed</label>
+        </div><div class="manage-actions"><button class="btn btn-primary" type="submit" id="loadSaveBtn">Save consumer</button><button class="btn btn-light" type="button" id="loadCancelBtn">Cancel</button></div><p class="form-message" id="loadMessage" role="status"></p></form>
+      </details>
+    </section>
+
+    <section class="panel history-panel" id="history">
+      <div class="panel-title"><div><h2>Allocation history</h2><p>Results saved by planning interval.</p></div><button class="btn btn-light" id="clearBtn">Clear history</button></div>
+      <div class="table-wrap"><table><thead><tr><th>INTERVAL</th><th>CONSUMER</th><th>CLASS</th><th>REQUESTED</th><th>ALLOCATED</th><th>UNMET</th><th>CURTAILED</th></tr></thead><tbody id="historyTable"><tr><td colspan="7">No allocations yet. Run an interval to see results.</td></tr></tbody></table></div>
+      <div class="history-foot"><span>Energy budget model · Not a power-flow simulation</span><span id="historyCount">0 records</span></div>
+    </section>
+    <footer>GRIDWISE <span>•</span> Renewable Energy Resource Allocation System <span class="footer-right">Java · Spring Boot · MySQL</span></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
